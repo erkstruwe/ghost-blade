@@ -1,6 +1,6 @@
 {
   "name": "ghost-blade",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "A convenience wrapper for the ghost package.",
   "bugs": {
     "url": "https://github.com/erkstruwe/ghost-blade/issues"

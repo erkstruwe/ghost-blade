@@ -1,6 +1,6 @@
 {
   "name": "ghost-blade",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A convenience wrapper for the ghost package.",
   "bugs": {
     "url": "https://github.com/erkstruwe/ghost-blade/issues"
@@ -23,6 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "ghost": "~0.11.0",
+    "jsonfile": "~2.4.0",
     "lodash": "~4.16.1"
   },
   "devDependencies": {

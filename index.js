@@ -1,5 +1,6 @@
 var lodash = require('lodash')
 var path = require('path')
+var jsonfile = require('jsonfile')
 var ghost = require('ghost')
 
 module.exports = function(options) {
@@ -38,8 +39,12 @@ module.exports = function(options) {
         }
     })
 
-    return ghost().then(function (ghostServer) {
-        lodash.merge(ghostServer.config, options.ghostConfig)
+    var ghostConfigFile = path.join(__dirname, 'config.json')
+    var ghostConfig = {}
+    ghostConfig[process.env.NODE_ENV] = options.ghostConfig
+    jsonfile.writeFileSync(ghostConfigFile, ghostConfig)
+
+    return ghost({config: ghostConfigFile}).then(function (ghostServer) {
         options.app.use(options.expressPath, ghostServer.rootApp);
         return ghostServer.start(options.app);
     })

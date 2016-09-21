@@ -19,11 +19,14 @@ module.exports = function(options) {
     if (lodash.get(options, 'ghostConfig.fileStorage')) {
         throw new Error('You must not specify ghostConfig.fileStorage. The default is false.')
     }
-    if (lodash.get(options, 'ghostConfig.database.client', 'mysql') != 'mysql') {
+    if (lodash.get(options, 'ghostConfig.database.client', 'mysql') !== 'mysql') {
         throw new Error('You must not specify ghostConfig.database.client. The default is \'mysql\'.')
     }
     if (lodash.get(options, 'ghostConfig.paths.contentPath')) {
         throw new Error('You must not specify ghostConfig.paths.contentPath. The default is \'' + path.join(process.cwd(), '/content') + '\'.')
+    }
+    if (lodash.get(options, 'ghostConfig.forceAdminSSL', true) !== true) {
+        throw new Error('You must not specify ghostConfig.forceAdminSSL. The default is true.')
     }
 
     // set defaults for disallowed options
@@ -35,7 +38,8 @@ module.exports = function(options) {
             },
             paths: {
                 contentPath: path.join(process.cwd(), '/content')
-            }
+            },
+            forceAdminSSL: true
         }
     })
 

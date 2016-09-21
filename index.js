@@ -11,40 +11,35 @@ module.exports = function (options) {
     if (!lodash.get(options, 'expressPath')) {
         throw new Error('No expressPath specified.')
     }
-    if (!lodash.get(options, 'ghostConfig.database.connection')) {
-        throw new Error('No ghostConfig.database.connection specified.')
+    if (!lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV + '.database.connection')) {
+        throw new Error('No ghostConfig.[environment].database.connection specified.')
     }
 
     // check disallowed options
-    if (lodash.get(options, 'ghostConfig.fileStorage')) {
-        throw new Error('You must not specify ghostConfig.fileStorage. The default is false.')
+    if (lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV + '.fileStorage')) {
+        throw new Error('You must not specify ghostConfig.[environment].fileStorage. The default is false.')
     }
-    if (lodash.get(options, 'ghostConfig.database.client', 'mysql') !== 'mysql') {
-        throw new Error('You must not specify ghostConfig.database.client. The default is \'mysql\'.')
+    if (lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV + '.database.client', 'mysql') !== 'mysql') {
+        throw new Error('You must not specify ghostConfig.[environment].database.client. The default is \'mysql\'.')
     }
-    if (lodash.get(options, 'ghostConfig.paths.contentPath')) {
-        throw new Error('You must not specify ghostConfig.paths.contentPath. The default is \'' + path.join(process.cwd(), '/content') + '\'.')
+    if (lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV + '.paths.contentPath')) {
+        throw new Error('You must not specify ghostConfig.[environment].paths.contentPath. The default is \'' + path.join(process.cwd(), '/content') + '\'.')
     }
-    if (lodash.get(options, 'ghostConfig.forceAdminSSL', true) !== true) {
-        throw new Error('You must not specify ghostConfig.forceAdminSSL. The default is true.')
+    if (lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV + '.forceAdminSSL', true) !== true) {
+        throw new Error('You must not specify ghostConfig.[environment].forceAdminSSL. The default is true.')
     }
 
     // set defaults for disallowed options
-    lodash.chain(options)
-        .get('ghostConfig', {})
-        .forEach(function (environment) {
-            lodash.defaultsDeep(environment, {
-                fileStorage: false,
-                database: {
-                    client: 'mysql'
-                },
-                paths: {
-                    contentPath: path.join(process.cwd(), '/content')
-                },
-                forceAdminSSL: true
-            })
-        })
-        .value()
+    lodash.defaultsDeep(lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV, {}), {
+        fileStorage: false,
+        database: {
+            client: 'mysql'
+        },
+        paths: {
+            contentPath: path.join(process.cwd(), '/content')
+        },
+        forceAdminSSL: true
+    })
 
     var ghostConfigFile = path.join(__dirname, 'config.json')
     jsonfile.writeFileSync(ghostConfigFile, options.ghostConfig)

@@ -3,7 +3,7 @@ var path = require('path')
 var jsonfile = require('jsonfile')
 var ghost = require('ghost')
 
-module.exports = function(options) {
+module.exports = function (options) {
     // check mandatory options
     if (!lodash.get(options, 'app')) {
         throw new Error('No app specified.')
@@ -30,23 +30,24 @@ module.exports = function(options) {
     }
 
     // set defaults for disallowed options
-    lodash.defaultsDeep(options, {
-        ghostConfig: {
-            fileStorage: false,
-            database: {
-                client: 'mysql'
-            },
-            paths: {
-                contentPath: path.join(process.cwd(), '/content')
-            },
-            forceAdminSSL: true
-        }
-    })
+    lodash.chain(options)
+        .get('ghostConfig', {})
+        .forEach(function (environment) {
+            lodash.defaultsDeep(environment, {
+                fileStorage: false,
+                database: {
+                    client: 'mysql'
+                },
+                paths: {
+                    contentPath: path.join(process.cwd(), '/content')
+                },
+                forceAdminSSL: true
+            })
+        })
+        .value()
 
     var ghostConfigFile = path.join(__dirname, 'config.json')
-    var ghostConfig = {}
-    ghostConfig[process.env.NODE_ENV] = options.ghostConfig
-    jsonfile.writeFileSync(ghostConfigFile, ghostConfig)
+    jsonfile.writeFileSync(ghostConfigFile, options.ghostConfig)
 
     return ghost({config: ghostConfigFile}).then(function (ghostServer) {
         options.app.use(options.expressPath, ghostServer.rootApp);

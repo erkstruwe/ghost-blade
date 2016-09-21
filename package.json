@@ -1,7 +1,7 @@
 {
   "name": "ghost-blade",
-  "version": "0.0.1",
-  "description": "A convenience wrapper for the ghost package",
+  "version": "0.0.2",
+  "description": "A convenience wrapper for the ghost package.",
   "bugs": {
     "url": "https://github.com/erkstruwe/ghost-blade/issues"
   },
@@ -15,19 +15,17 @@
   },
   "main": "index.js",
   "scripts": {
-    "lint": "eslint **/*.js",
+    "lint": "jshint index.js",
     "test": "npm run lint",
-    "start": "node test.js"
+    "start": "echo 'This module cannot be run independently.'"
   },
   "author": "Erk Struwe <estruwe@estruwe.de>",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "dependencies": {
     "ghost": "~0.11.0",
     "lodash": "~4.16.1"
   },
   "devDependencies": {
-    "dotenv": "~2.0.0",
-    "eslint": "~3.5.0",
-    "express": "~4.14.0"
+    "jshint": "~2.9.3"
   }
 }

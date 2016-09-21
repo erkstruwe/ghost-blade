@@ -38,7 +38,7 @@ module.exports = function(options) {
         }
     })
 
-    return ghost().then((ghostServer) => {
+    return ghost().then(function (ghostServer) {
         lodash.merge(ghostServer.config, options.ghostConfig)
         options.app.use(options.expressPath, ghostServer.rootApp);
         return ghostServer.start(options.app);

@@ -4,48 +4,53 @@ var jsonfile = require('jsonfile')
 var ghost = require('ghost')
 
 module.exports = function (options) {
-    // check mandatory options
-    if (!lodash.get(options, 'app')) {
-        throw new Error('No app specified.')
-    }
-    if (!lodash.get(options, 'expressPath')) {
-        throw new Error('No expressPath specified.')
-    }
-    if (!lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV + '.database.connection')) {
-        throw new Error('No ghostConfig.[environment].database.connection specified.')
-    }
+    return new Promise(function (resolve, reject) {
+        var ghostConfig = lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV)
 
-    // check disallowed options
-    if (lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV + '.fileStorage')) {
-        throw new Error('You must not specify ghostConfig.[environment].fileStorage. The default is false.')
-    }
-    if (lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV + '.database.client', 'mysql') !== 'mysql') {
-        throw new Error('You must not specify ghostConfig.[environment].database.client. The default is \'mysql\'.')
-    }
-    if (lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV + '.paths.contentPath')) {
-        throw new Error('You must not specify ghostConfig.[environment].paths.contentPath. The default is \'' + path.join(process.cwd(), '/content') + '\'.')
-    }
-    if (lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV + '.forceAdminSSL', true) !== true) {
-        throw new Error('You must not specify ghostConfig.[environment].forceAdminSSL. The default is true.')
-    }
+        // check mandatory options
+        if (!ghostConfig) {
+            return reject('No ghostConfig for environment \'' + process.env.NODE_ENV + '\'.')
+        }
 
-    // set defaults for disallowed options
-    lodash.defaultsDeep(lodash.get(options, 'ghostConfig.' + process.env.NODE_ENV, {}), {
-        fileStorage: false,
-        database: {
-            client: 'mysql'
-        },
-        paths: {
-            contentPath: path.join(process.cwd(), '/content')
-        },
-        forceAdminSSL: true
-    })
+        // check disallowed options
+        if (lodash.get(ghostConfig, 'server')) {
+            return reject('You must not specify server when using ghostBlade middleware. Use app.listen(port, host) instead.')
+        }
+        if (lodash.get(ghostConfig, 'paths.contentPath')) {
+            return reject('You must not specify ghostConfig.' + process.env.NODE_ENV + '.paths.contentPath. The default is \'' + path.join(process.cwd(), '/content') + '\'.')
+        }
+        if (process.env.NODE_ENV == 'production') {
+            if (lodash.get(ghostConfig, 'fileStorage') !== false) {
+                return reject('You must not use fileStorage in a production environment. Please set to false.')
+            }
+            if (lodash.get(ghostConfig, 'database.client') != 'mysql' && lodash.get(ghostConfig, 'database.client') != 'pg') {
+                return reject('You must not use sqlite3 as database.client in a production environment. Please set to \'mysql\' (recommended) or \'pg\'.')
+            }
+            if (lodash.get(ghostConfig, 'forceAdminSSL', false) !== true) {
+                return reject('You must forceAdminSSL in a production environment. Please set to true.')
+            }
+        }
 
-    var ghostConfigFile = path.join(__dirname, 'config.json')
-    jsonfile.writeFileSync(ghostConfigFile, options.ghostConfig)
+        // set defaults for disallowed options
+        lodash.defaultsDeep(ghostConfig, {
+            server: {
+                host: 'localhost',
+                port: 1
+            },
+            paths: {
+                contentPath: path.join(process.cwd(), '/content')
+            }
+        })
 
-    return ghost({config: ghostConfigFile}).then(function (ghostServer) {
-        options.app.use(options.expressPath, ghostServer.rootApp);
-        return ghostServer.start(options.app);
+        var ghostConfigFile = path.join(__dirname, 'config.json')
+        jsonfile.writeFileSync(ghostConfigFile, options.ghostConfig)
+
+        return ghost({config: ghostConfigFile})
+            .then(function (ghostServer) {
+                return resolve(ghostServer.rootApp)
+            })
+            .catch(function (e) {
+                return reject(e)
+            })
     })
 }

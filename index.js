@@ -37,6 +37,12 @@ module.exports = function (options) {
                 host: 'localhost',
                 port: 1
             },
+            database: {
+                client: 'sqlite3',
+                connection: {
+                    filename: path.join(process.cwd(), '/content/data/ghost-dev.db')
+                }
+            },
             paths: {
                 contentPath: path.join(process.cwd(), '/content')
             }

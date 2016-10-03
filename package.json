@@ -1,7 +1,7 @@
 {
   "name": "ghost-blade",
-  "version": "0.0.7",
-  "description": "A convenience wrapper for the ghost package.",
+  "version": "0.1.0",
+  "description": "A slightly opinionated convenience wrapper for the ghost blog system that lets you use ghost as an express middleware.",
   "bugs": {
     "url": "https://github.com/erkstruwe/ghost-blade/issues"
   },
@@ -17,7 +17,7 @@
   "scripts": {
     "lint": "jshint index.js",
     "test": "npm run lint",
-    "start": "echo 'This module cannot be run independently.'"
+    "start": "echo 'This module cannot be run independently. Use it as express middleware instead.'"
   },
   "author": "Erk Struwe <estruwe@estruwe.de>",
   "license": "MIT",
